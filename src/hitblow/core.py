@@ -19,6 +19,10 @@ def judge(secret, guess):
     return hits, common - hits
 
 
-def make_secret(digits=3):
+def make_secret16(digits=3):
     """重複なしの digits 桁の答えを作る。"""
     return "".join(random.sample("0123456789ABCDEF", digits))
+
+def make_secret10(digits=3):
+    """重複なしの digits 桁の答えを作る。"""
+    return "".join(random.sample("0123456789", digits))
