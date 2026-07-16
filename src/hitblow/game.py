@@ -8,7 +8,6 @@
 
 from .core import judge, make_secret
 
-
 def play(digits=3):
     secret = make_secret(digits)
     print(f"Hit & Blow（{digits} 桁・重複なし）")
@@ -24,7 +23,11 @@ def play(digits=3):
         #      if guess == "h":
         #          print(hint(secret)); continue
 
-        if len(guess) != digits or not guess.isdigit():
+        if len(guess) != digits:
+            for i in guess:
+                if i not in "0123456789ABCDEF":
+                    print(f"16進数の {digits} 桁で入力してね")
+                    break
             print(f"{digits} 桁の数字で入力してね")
             continue
         tries += 1

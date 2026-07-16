@@ -12,6 +12,8 @@ def judge(secret, guess):
     hit  … 数字も位置も合っている個数
     blow … 数字は含まれるが位置が違う個数
     """
+    secret = secret.upper()
+    guess = guess.upper()
     hits = sum(s == g for s, g in zip(secret, guess))
     common = sum(min(secret.count(d), guess.count(d)) for d in set(guess))
     return hits, common - hits
@@ -19,4 +21,4 @@ def judge(secret, guess):
 
 def make_secret(digits=3):
     """重複なしの digits 桁の答えを作る。"""
-    return "".join(random.sample("0123456789", digits))
+    return "".join(random.sample("0123456789ABCDEF", digits))
