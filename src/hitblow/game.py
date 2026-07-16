@@ -9,6 +9,7 @@
 from .core import judge, make_secret
 
 def play(digits=3):
+    Max_Limit_Play_16 = 15 
     secret = make_secret(digits)
     print(f"Hit & Blow（{digits} 桁・重複なし）")
 
@@ -33,9 +34,14 @@ def play(digits=3):
         tries += 1
         hit, blow = judge(secret, guess)
         print(f"  Hit={hit}  Blow={blow}")
+        print(f"残りの回答回数は{Max_Limit_Play_16 - tries }回です")
         if hit == digits:
 
             # ===== ③ 勝利時に足す（スコア・履歴 など）: ここに書く =====
 
             print(f"正解！ {tries} 回で当たり（答え {secret}）")
+            break
+
+        elif (Max_Limit_Play_16 - tries <= 0):
+            print(f"Game_Over!（答えは {secret} でした） ")
             break
