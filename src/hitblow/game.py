@@ -7,8 +7,10 @@
 """
 
 from .core import judge, make_secret16, make_secret10
+from .Games_Hit_and_Brow_GUI import main
 
 def play(digits=3):
+    
     # =========================================================
     # 全体を囲む外側のループ（4が入力されるまでゲームを繰り返す）
     # =========================================================
@@ -23,15 +25,19 @@ def play(digits=3):
 
         # モード選択（正しい入力が来るまでループ）
         while True:
-            mode = input("モードを選択 (1:10進数, 2:16進数, 3:協力モード, 4:終了) > ").strip()
-            if mode in ["1", "2", "3", "4"]:
+            mode = input("モードを選択 (1:10進数, 2:16進数, 3:協力モード, 4:終了, 5:GUIモード) > ").strip()
+            if mode in ["1", "2", "3", "4","5"]:
                 break
-            print("【エラー】1, 2, 3, 4 のいずれかを入力してください。")
+            print("【エラー】1, 2, 3, 4, 5 のいずれかを入力してください。")
         
         # 「4:終了」が選ばれたら、外側のループを抜けてプログラム自体を終わらせる
         if mode == "4":
             print("ゲームを終了します。遊んでくれてありがとう！")
             break
+        elif mode == "5":
+            break
+            
+            
         
         # モードに応じた初期設定
         is_coop_mode = (mode == "3")
@@ -219,3 +225,6 @@ def play(digits=3):
             elif (Max_Limit_Play_16 - tries <= 0):
                 print(f"Game_Over!（答えは {secret} でした） ")
                 game_active = False  # ★ breakから変更
+
+    if mode == "5":
+        main()
