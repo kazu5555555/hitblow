@@ -28,7 +28,7 @@ class BaseScene:
 class TitleScene(BaseScene):
     def enter(self):
         try:
-            img = Image.open(os.path.join(os.path.dirname(__file__), "Main_UI", "test_image_title.png"))
+            img = Image.open(os.path.join(os.path.dirname(__file__), "Main_UI", "HitBrow_mainUI.jpg"))
             img = img.resize((self.engine.DisplayX, self.engine.DisplayY))
             self.title_photo = ImageTk.PhotoImage(img)
             self.canvas.create_image(
@@ -67,7 +67,7 @@ class TitleScene(BaseScene):
 
     def exit(self):
         # 次の画面に行く前に、自分の出した画像とキー設定を綺麗にお掃除
-        self.canvas.delete(os.path.join(os.path.dirname(__file__), "Main_UI", "title_screen"))
+        self.canvas.delete(os.path.join(os.path.dirname(__file__), "Main_UI", "HitBrow_mainUI.jpg"))
         self.root.unbind("<Return>")
         pygame.mixer.music.stop()
 
@@ -86,6 +86,18 @@ class GameScene(BaseScene):
         )
         self.tick_counter = 0
         self.move_counter = 0
+
+        BackGround_img = Image.open(os.path.join(os.path.dirname(__file__), "Main_UI", "test_image_Normal.PNG"))
+        BackGround_img = BackGround_img.resize((self.engine.DisplayX, self.engine.DisplayY))
+        self.BackGround_img = ImageTk.PhotoImage(BackGround_img)
+        self.canvas.create_image(
+            self.engine.DisplayX // 2,
+            self.engine.DisplayY // 2,
+            image=self.BackGround_img,
+            tag="BackGround_img",
+        )
+
+
 
         self.root.bind("<Return>", self.on_enter_pressed)
 
@@ -110,6 +122,7 @@ class GameScene(BaseScene):
 
     def exit(self):
         self.canvas.delete("game_ui")
+        self.canvas.delete("BackGround_img")
 
 
 # --- ゲームエンジン（マネージャー） ---
@@ -120,6 +133,8 @@ class GameEngine:
         self.root.title("Hit and Brow")
         self.root.geometry("1280x720")
         self.DisplayX, self.DisplayY = 1280, 720
+
+        self.root.bind("<Escape>", self.Exit_Scean)
 
         pygame.mixer.init()
 
@@ -153,6 +168,10 @@ class GameEngine:
             self.now_scene.update()
 
         self.root.after(16, self.game_loop)
+
+    def Exit_Scean(self, event):
+        print("ゲームを終了します。Thank you for playing!")
+        self.root.destroy()
 
 
 if __name__ == "__main__":
