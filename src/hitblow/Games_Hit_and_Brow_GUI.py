@@ -27,6 +27,8 @@ class BaseScene:
 # --- タイトル画面のシーン ---
 class TitleScene(BaseScene):
     def enter(self):
+
+        #バックグラウンドイメージの設定とボタンの初期設定
         try:
             img = Image.open(os.path.join(os.path.dirname(__file__), "Main_UI", "HitBrow_mainUI.jpg"))
             img = img.resize((self.engine.DisplayX, self.engine.DisplayY))
@@ -37,6 +39,37 @@ class TitleScene(BaseScene):
                 image=self.title_photo,
                 tag="title_screen",
             )
+
+            self.to_mode1_button = tk.Button(
+                self.canvas, 
+                text="モード１へ", 
+                bg="green", 
+                fg="white",             # 文字を白くして見やすくする
+                font=("Arial", 30),  # ここでフォントサイズを調整
+                command=self.Go_to_mode1 # クリック時の処理
+            )
+            self.to_mode1_button.pack()
+
+            self.to_mode2_button = tk.Button(
+                self.canvas, 
+                text="モード2へ", 
+                bg="red", 
+                fg="white",             # 文字を白くして見やすくする
+                font=("Arial", 30),  # ここでフォントサイズを調整
+                command=self.Go_to_mode2 # クリック時の処理
+            )
+            self.to_mode2_button.pack()
+
+            self.to_mode3_button = tk.Button(
+                self.canvas, 
+                text="モード３へ", 
+                bg="blue", 
+                fg="white",             # 文字を白くして見やすくする
+                font=("Arial", 30),  # ここでフォントサイズを調整
+                command=self.Go_to_mode3 # クリック時の処理
+            )
+            self.to_mode3_button.pack()
+
         except FileNotFoundError:
             self.canvas.create_text(
                 self.engine.DisplayX // 2,
@@ -45,15 +78,53 @@ class TitleScene(BaseScene):
                 font=("Arial", 50),
                 tag="title_screen",
             )
+            
+        #ボタンの配置
+        try:
+            self.to_mode1_button_window = self.canvas.create_window(
+                self.engine.DisplayX // 2 + 400,
+                self.engine.DisplayY // 2 - 100, 
+                anchor="center",         # 基準点を左上(North-West)にする（これがないと中央基準になります）
+                width=300,            # ボタンの幅
+                height=70,           # ボタンの高さ
+                window=self.to_mode1_button, # 埋め込むウィジェットを指定
+                tags="Mode1_Button"       # 四角形と同じようにタグを設定可能
+            )
+            self.to_mode2_button_window = self.canvas.create_window(
+                self.engine.DisplayX // 2 + 400,
+                self.engine.DisplayY // 2, 
+                anchor="center",         # 基準点を左上(North-West)にする（これがないと中央基準になります）
+                width=300,            # ボタンの幅
+                height=70,           # ボタンの高さ
+                window=self.to_mode2_button, # 埋め込むウィジェットを指定
+                tags="Mode2_Button"       # 四角形と同じようにタグを設定可能
+            )
+            self.to_mode3_button_window = self.canvas.create_window(
+                self.engine.DisplayX // 2 + 400,
+                self.engine.DisplayY // 2 + 100, 
+                anchor="center",         # 基準点を左上(North-West)にする（これがないと中央基準になります）
+                width=300,            # ボタンの幅
+                height=70,           # ボタンの高さ
+                window=self.to_mode3_button, # 埋め込むウィジェットを指定
+                tags="Mode3_Button"       # 四角形と同じようにタグを設定可能
+            )
+
+        except FileNotFoundError:
+            print("ボタンの配置ができませんでした")
 
         self.Sound_BGM()
 
-        # エンターキーでゲーム本編へ遷移
-        self.root.bind("<Return>", self.on_enter_pressed)
+    def Go_to_mode1(self):
+        print("モード1を開始します")
+        self.engine.change_scene(GameScene1(self.engine))
 
-    def on_enter_pressed(self, event):
-        # エンターが押されたら、次のシーン（GameScene）へ切り替えるようEngineに指示
-        self.engine.change_scene(GameScene(self.engine))
+    def Go_to_mode2(self):
+        print("モード2を開始します")
+        self.engine.change_scene(GameScene2(self.engine))
+
+    def Go_to_mode3(self):
+        print("モード3を開始します")
+        self.engine.change_scene(GameScene3(self.engine))
 
     def Sound_BGM(self):
         try:
@@ -69,11 +140,154 @@ class TitleScene(BaseScene):
         # 次の画面に行く前に、自分の出した画像とキー設定を綺麗にお掃除
         self.canvas.delete(os.path.join(os.path.dirname(__file__), "Main_UI", "HitBrow_mainUI.jpg"))
         self.root.unbind("<Return>")
+        self.canvas.delete("Mode1_Button")
+        self.canvas.delete("Mode2_Button")
+        self.canvas.delete("Mode3_Button")
+        self.canvas.delete("Mode1_Button_window")
+        self.canvas.delete("Mode2_Button_window")
+        self.canvas.delete("Mode3_Button_window")
         pygame.mixer.music.stop()
 
 
 # --- ゲーム本編のシーン ---
-class GameScene(BaseScene):
+class GameScene1(BaseScene):
+    def enter(self):
+        self.box_x, self.box_y = 175, 125
+        self.player_box = self.canvas.create_rectangle(
+            self.box_x,
+            self.box_y,
+            self.box_x + 50,
+            self.box_y + 50,
+            fill="green",
+            tag="game_ui",
+        )
+        self.tick_counter = 0
+        self.move_counter = 0
+
+        BackGround_img = Image.open(os.path.join(os.path.dirname(__file__), "Main_UI", "test_image_Normal.PNG"))
+        BackGround_img = BackGround_img.resize((self.engine.DisplayX, self.engine.DisplayY))
+        self.BackGround_img = ImageTk.PhotoImage(BackGround_img)
+        self.canvas.create_image(
+            self.engine.DisplayX // 2,
+            self.engine.DisplayY // 2,
+            image=self.BackGround_img,
+            tag="BackGround_img",
+        )
+
+        #タイトルバックボタン設定------------------------------------
+        self.Return_Title_button = tk.Button(
+                self.canvas, 
+                text="タイトルへ", 
+                bg="green", 
+                fg="white",             # 文字を白くして見やすくする
+                font=("Arial", 30),  # ここでフォントサイズを調整
+                command=self.Return_to_title # クリック時の処理
+            )
+        self.Return_Title_Button_window = self.canvas.create_window(
+                self.engine.DisplayX // 2 + 400,
+                self.engine.DisplayY // 2 + 200, 
+                anchor="center",         # 基準点を左上(North-West)にする（これがないと中央基準になります）
+                width=300,            # ボタンの幅
+                height=70,           # ボタンの高さ
+                window=self.Return_Title_button, # 埋め込むウィジェットを指定
+                tags="Return_Title_Button"       # 四角形と同じようにタグを設定可能
+            )
+        #タイトルバックボタン設定(ここまで)------------------------------------
+
+    def Return_to_title(self):
+        print("タイトルバックボタンが押されました。タイトル画面に戻ります")
+        self.engine.change_scene(TitleScene(self.engine))
+
+    def update(self):
+        # 箱を動かす処理（以前の game_loop の中身）
+        self.tick_counter += 1
+        if self.tick_counter % 30 == 0:
+            if self.move_counter >= 3:
+                self.move_counter = 0
+                self.tick_counter = 0
+            else:
+                self.move_counter += 1
+
+            new_x = self.box_x + (self.move_counter * 50)
+            self.canvas.coords(
+                self.player_box, new_x, self.box_y, new_x + 50, self.box_y + 50
+            )
+
+    def exit(self):
+        self.canvas.delete("game_ui")
+        self.canvas.delete("BackGround_img")
+        self.canvas.delete("Return_Title_Button")
+
+
+class GameScene2(BaseScene):
+    def enter(self):
+        self.box_x, self.box_y = 175, 125
+        self.player_box = self.canvas.create_rectangle(
+            self.box_x,
+            self.box_y,
+            self.box_x + 50,
+            self.box_y + 50,
+            fill="green",
+            tag="game_ui",
+        )
+        self.tick_counter = 0
+        self.move_counter = 0
+
+        BackGround_img = Image.open(os.path.join(os.path.dirname(__file__), "Main_UI", "test_image_Normal.PNG"))
+        BackGround_img = BackGround_img.resize((self.engine.DisplayX, self.engine.DisplayY))
+        self.BackGround_img = ImageTk.PhotoImage(BackGround_img)
+        self.canvas.create_image(
+            self.engine.DisplayX // 2,
+            self.engine.DisplayY // 2,
+            image=self.BackGround_img,
+            tag="BackGround_img",
+        )
+        #タイトルバックボタン設定------------------------------------
+        self.Return_Title_button = tk.Button(
+                self.canvas, 
+                text="タイトルへ", 
+                bg="red", 
+                fg="white",             # 文字を白くして見やすくする
+                font=("Arial", 30),  # ここでフォントサイズを調整
+                command=self.Return_to_title # クリック時の処理
+            )
+
+        self.Return_Title_Button_window = self.canvas.create_window(
+                self.engine.DisplayX // 2 + 400,
+                self.engine.DisplayY // 2 + 200, 
+                anchor="center",         # 基準点を左上(North-West)にする（これがないと中央基準になります）
+                width=300,            # ボタンの幅
+                height=70,           # ボタンの高さ
+                window=self.Return_Title_button, # 埋め込むウィジェットを指定
+                tags="Return_Title_Button"       # 四角形と同じようにタグを設定可能
+            )
+        #タイトルバックボタン設定(ここまで)------------------------------------
+
+    def Return_to_title(self):
+        print("タイトルバックボタンが押されました。タイトル画面に戻ります")
+        self.engine.change_scene(TitleScene(self.engine))
+
+    def update(self):
+        # 箱を動かす処理（以前の game_loop の中身）
+        self.tick_counter += 1
+        if self.tick_counter % 30 == 0:
+            if self.move_counter >= 3:
+                self.move_counter = 0
+                self.tick_counter = 0
+            else:
+                self.move_counter += 1
+
+            new_x = self.box_x + (self.move_counter * 50)
+            self.canvas.coords(
+                self.player_box, new_x, self.box_y, new_x + 50, self.box_y + 50
+            )
+
+    def exit(self):
+        self.canvas.delete("game_ui")
+        self.canvas.delete("BackGround_img")
+        self.canvas.delete("Return_Title_Button")
+
+class GameScene3(BaseScene):
     def enter(self):
         self.box_x, self.box_y = 175, 125
         self.player_box = self.canvas.create_rectangle(
@@ -98,11 +312,28 @@ class GameScene(BaseScene):
         )
 
 
+        #タイトルバックボタン設定------------------------------------
+        self.Return_Title_button = tk.Button(
+                self.canvas, 
+                text="タイトルへ", 
+                bg="blue", 
+                fg="white",             # 文字を白くして見やすくする
+                font=("Arial", 30),  # ここでフォントサイズを調整
+                command=self.Return_to_title # クリック時の処理
+            )
+        self.Return_Title_Button_window = self.canvas.create_window(
+                self.engine.DisplayX // 2 + 400,
+                self.engine.DisplayY // 2 + 200, 
+                anchor="center",         # 基準点を左上(North-West)にする（これがないと中央基準になります）
+                width=300,            # ボタンの幅
+                height=70,           # ボタンの高さ
+                window=self.Return_Title_button, # 埋め込むウィジェットを指定
+                tags="Return_Title_Button"       # 四角形と同じようにタグを設定可能
+            )
+        #タイトルバックボタン設定(ここまで)------------------------------------
 
-        self.root.bind("<Return>", self.on_enter_pressed)
-
-    def on_enter_pressed(self, event):
-        # エンターが押されたら、次のシーン（TitleScene）へ切り替えるようEngineに指示
+    def Return_to_title(self):
+        print("タイトルバックボタンが押されました。タイトル画面に戻ります")
         self.engine.change_scene(TitleScene(self.engine))
 
     def update(self):
@@ -123,6 +354,7 @@ class GameScene(BaseScene):
     def exit(self):
         self.canvas.delete("game_ui")
         self.canvas.delete("BackGround_img")
+        self.canvas.delete("Return_Title_Button")
 
 
 # --- ゲームエンジン（マネージャー） ---
